@@ -1,0 +1,283 @@
+ans1)
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) {
+        data = value;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+void convertToDLL(Node* root, Node*& prev, Node*& head) {
+    if (root == nullptr)
+        return;
+
+    convertToDLL(root->left, prev, head);
+
+    // Modify the pointers
+    if (prev == nullptr) {
+        // First node of the inorder traversal (leftmost node)
+        head = root;
+    } else {
+        prev->right = root;
+        root->left = prev;
+    }
+    prev = root;
+
+    convertToDLL(root->right, prev, head);
+}
+
+void printDLL(Node* head) {
+    while (head != nullptr) {
+        cout << head->data << " ";
+        head = head->right;
+    }
+}
+
+int main() {
+    // Create the binary tree
+    Node* root = new Node(4);
+    root->left = new Node(2);
+    root->right = new Node(5);
+    root->left->left = new Node(1);
+    root->left->right = new Node(3);
+
+    // Convert the binary tree to DLL
+    Node* prev = nullptr;
+    Node* head = nullptr;
+    convertToDLL(root, prev, head);
+
+    // Print the DLL
+    cout << "Doubly Linked List (DLL): ";
+    printDLL(head);
+    cout << endl;
+
+    return 0;
+}
+
+
+ans2)
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) {
+        data = value;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+Node* flipBinaryTree(Node* root) {
+    // Base case: If the current node is nullptr or a leaf node, return it
+    if (root == nullptr || (root->left == nullptr && root->right == nullptr)) {
+        return root;
+    }
+
+    Node* flippedRoot = flipBinaryTree(root->left);
+
+    // Flip the connections
+    root->left->left = root->right;
+    root->left->right = root;
+    root->left = root->right = nullptr;
+
+    return flippedRoot;
+}
+
+void printInorder(Node* root) {
+    if (root == nullptr)
+        return;
+
+    printInorder(root->left);
+    cout << root->data << " ";
+    printInorder(root->right);
+}
+
+int main() {
+    // Create the binary tree
+    Node* root = new Node(1);
+    root->left = new Node(2);
+    root->right = new Node(3);
+    root->left->left = new Node(4);
+    root->left->right = new Node(5);
+
+    cout << "Inorder traversal of the original binary tree: ";
+    printInorder(root);
+    cout << endl;
+
+    // Flip the binary tree
+    Node* flippedRoot = flipBinaryTree(root);
+
+    cout << "Inorder traversal of the flipped binary tree: ";
+    printInorder(flippedRoot);
+    cout << endl;
+
+    return 0;
+}
+
+
+ans3)
+#include <iostream>
+#include <stack>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) {
+        data = value;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+void printRootToLeafPaths(Node* root) {
+    if (root == nullptr)
+        return;
+
+    stack<pair<Node*, string>> stk;
+    stk.push(make_pair(root, to_string(root->data)));
+
+    while (!stk.empty()) {
+        Node* current = stk.top().first;
+        string path = stk.top().second;
+        stk.pop();
+
+        if (current->left == nullptr && current->right == nullptr) {
+            // Leaf node reached, print the path
+            cout << path << endl;
+        }
+
+        if (current->left) {
+            stk.push(make_pair(current->left, path + "->" + to_string(current->left->data)));
+        }
+        if (current->right) {
+            stk.push(make_pair(current->right, path + "->" + to_string(current->right->data)));
+        }
+    }
+}
+
+int main() {
+    // Create the binary tree
+    Node* root = new Node(6);
+    root->left = new Node(3);
+    root->right = new Node(5);
+    root->left->left = new Node(2);
+    root->left->right = new Node(5);
+    root->right->right = new Node(4);
+    root->left->right->left = new Node(7);
+    root->left->right->right = new Node(4);
+
+    cout << "Root-to-leaf paths of the binary tree: " << endl;
+    printRootToLeafPaths(root);
+
+    return 0;
+}
+
+ans4)
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;
+    Node* right;
+
+    Node(int value) {
+        data = value;
+        left = nullptr;
+        right = nullptr;
+    }
+};
+
+Node* constructTreeFromPreorder(vector<int>& preorder, int& preIndex, vector<int>& inorder, int inStart, int inEnd) {
+    if (inStart > inEnd)
+        return nullptr;
+
+    int rootData = preorder[preIndex++];
+    Node* root = new Node(rootData);
+
+    int rootIndex;
+    for (int i = inStart; i <= inEnd; i++) {
+        if (inorder[i] == rootData) {
+            rootIndex = i;
+            break;
+        }
+    }
+
+    root->left = constructTreeFromPreorder(preorder, preIndex, inorder, inStart, rootIndex - 1);
+    root->right = constructTreeFromPreorder(preorder, preIndex, inorder, rootIndex + 1, inEnd);
+
+    return root;
+}
+
+void getInorderTraversal(Node* root, vector<int>& inorder) {
+    if (root == nullptr)
+        return;
+
+    getInorderTraversal(root->left, inorder);
+    inorder.push_back(root->data);
+    getInorderTraversal(root->right, inorder);
+}
+
+void getPreorderTraversal(Node* root, vector<int>& preorder) {
+    if (root == nullptr)
+        return;
+
+    preorder.push_back(root->data);
+    getPreorderTraversal(root->left, preorder);
+    getPreorderTraversal(root->right, preorder);
+}
+
+void getPostorderTraversal(Node* root, vector<int>& postorder) {
+    if (root == nullptr)
+        return;
+
+    getPostorderTraversal(root->left, postorder);
+    getPostorderTraversal(root->right, postorder);
+    postorder.push_back(root->data);
+}
+
+bool areTraversalsSame(vector<int>& inorder, vector<int>& preorder, vector<int>& postorder) {
+    int preIndex = 0;
+    Node* root = constructTreeFromPreorder(preorder, preIndex, inorder, 0, inorder.size() - 1);
+
+    vector<int> reconstructedInorder;
+    getInorderTraversal(root, reconstructedInorder);
+
+    vector<int> reconstructedPreorder;
+    getPreorderTraversal(root, reconstructedPreorder);
+
+    vector<int> reconstructedPostorder;
+    getPostorderTraversal(root, reconstructedPostorder);
+
+    return (inorder == reconstructedInorder && preorder == reconstructedPreorder && postorder == reconstructedPostorder);
+}
+
+int main() {
+    vector<int> inorder = {4, 2, 5, 1, 3};
+    vector<int> preorder = {1, 2, 4, 5, 3};
+    vector<int> postorder = {4, 5, 2, 3, 1};
+
+    if (areTraversalsSame(inorder, preorder, postorder)) {
+        cout << "Yes" << endl;
+    } else {
+        cout << "No" << endl;
+    }
+
+    return 0;
+}
+
